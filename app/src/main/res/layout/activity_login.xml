@@ -44,7 +44,7 @@
                 android:layout_height="wrap_content"
                 android:hint="清输入密码"
                 android:imeActionId="6"
-                android:imeActionLabel="@string/action_sign_in_short"
+                android:imeActionLabel="登录"
                 android:imeOptions="actionUnspecified"
                 android:inputType="textPassword"
                 android:maxLines="1"
