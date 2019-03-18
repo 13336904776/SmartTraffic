@@ -7,11 +7,10 @@
     android:orientation="vertical"
     tools:context=".activity.LoginActivity">
 
-    <include layout="@layout/titlebar" />
+
 
 
     <LinearLayout
-        android:id="@+id/email_login_form"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="60dp"
