@@ -18,6 +18,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.mrzhang.smarttraffic.R;
+import com.example.mrzhang.smarttraffic.utils.Constant;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -61,14 +62,21 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         initView();
+        initData();
+
+    }
+
+    private void initData() {
         setting = getSharedPreferences("setting", 0);
         edit = setting.edit();
-
-        boolean pwdIsCheck = setting.getBoolean("pwdIsCheck", false);
-
+        boolean pwdIsCheck = setting.getBoolean(Constant.SP_ISREMEMBERPWD, false);
         mRememberPwdCb.setChecked(pwdIsCheck);
-
-
+        if(pwdIsCheck){//如果上次保存的是记住密码的话
+            mAccount = setting.getString(Constant.SP_USERNAME, "");
+            mPsw = setting.getString(Constant.SP_PASSWORD, "");
+            mAccountEdt.setText(mAccount);
+            mPwdEdt.setText(mPsw);
+        }
     }
 
 
@@ -92,9 +100,6 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
                 mAccount = mAccountEdt.getText().toString().trim();
                 mPsw = mPwdEdt.getText().toString().trim();
 
-//                if(mAccount == null || "".equals(mAccount)){
-//                    Toast.makeText(LoginActivity.this,"请输入您的账号",Toast.LENGTH_SHORT).show();
-//                }
                 if(TextUtils.isEmpty(mAccount)){
                     Toast.makeText(LoginActivity.this,"请输入您的账号",Toast.LENGTH_SHORT).show();
                     return;
@@ -129,17 +134,18 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
                         if("S".equals(result)){//请求成功且登录成功
                             String userRole = jsonObject.optString("UserRole");
 
-                            edit.putString("userRole",userRole).commit();
-
+                            edit.putString(Constant.SP_USERROLE,userRole).commit();
+                            edit.putBoolean(Constant.SP_ISAUTOLOGIN,mSelfLoginCb.isChecked());
                             boolean checked = mRememberPwdCb.isChecked();
                             if(checked){
-                                edit.putString("userName",mAccount);
-                                edit.putString("password",mPsw);
-                                edit.putBoolean("pwdIsCheck",true);
+                                edit.putString(Constant.SP_USERNAME,mAccount).commit();
+                                edit.putString(Constant.SP_PASSWORD,mPsw).commit();
+                                edit.putBoolean(Constant.SP_ISREMEMBERPWD,true).commit();
                             }else {
-                                edit.remove("userName");
-                                edit.remove("password");
-                                edit.putBoolean("pwdIsCheck",false);
+                                edit.remove(Constant.SP_USERNAME).commit();
+//                                edit.putString(Constant.SP_USERNAME,"").commit();
+                                edit.remove(Constant.SP_PASSWORD).commit();
+                                edit.putBoolean(Constant.SP_ISREMEMBERPWD,false).commit();
                             }
 
                             Intent intent = new Intent(LoginActivity.this,MainActivity.class);

@@ -1,6 +1,7 @@
 package com.example.mrzhang.smarttraffic.activity;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -17,6 +18,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.mrzhang.smarttraffic.R;
+import com.example.mrzhang.smarttraffic.utils.Constant;
+import com.example.mrzhang.smarttraffic.utils.SpUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,12 +47,10 @@ public class WelcomeActivity extends BaseActivity implements View.OnClickListene
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_welcome);
         initView();
-        initListener();
         initData();
     }
 
     public void initView() {
-
         mVp = (ViewPager) findViewById(R.id.vp);
         mDotLl = (LinearLayout) findViewById(R.id.dot_ll);
         mSkipBtn = (Button) findViewById(R.id.skip_btn);
@@ -58,11 +59,12 @@ public class WelcomeActivity extends BaseActivity implements View.OnClickListene
         mOkBtn.setOnClickListener(this);
     }
 
-    public void initListener() {
-
-    }
 
     public void initData() {
+
+        SharedPreferences setting = getSharedPreferences("setting", MODE_PRIVATE);
+        SharedPreferences.Editor edit = setting.edit();
+        edit.putBoolean(Constant.SP_ISFRAIST,false).commit();
 
         initViewPage();
 
