@@ -24,12 +24,18 @@ public class SplashActivity extends BaseActivity {
 
     private TextView mTimeTv;
     private SharedPreferences setting;
+    private String mUserName;
+    private String mPsw;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
+        Log.e("zzz","我进入APP粒");
         initView();
+        setting = getSharedPreferences("setting", 0);
+        mUserName = setting.getString(Constant.SP_USERNAME, "");
+        mPsw = setting.getString(Constant.SP_PASSWORD, "");
         CountDownTimer countDownTimer = new CountDownTimer(5000, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
@@ -38,7 +44,7 @@ public class SplashActivity extends BaseActivity {
 
             @Override
             public void onFinish() {
-                setting = getSharedPreferences("setting", 0);
+
                 boolean isFrist = setting.getBoolean(Constant.SP_ISFRAIST, true);
                 boolean isAutoLogin = setting.getBoolean(Constant.SP_ISAUTOLOGIN, true);
                 if (isFrist) {//是第一次进入APP
@@ -46,10 +52,8 @@ public class SplashActivity extends BaseActivity {
                     startActivity(intent);
                     finish();
                 } else {
-
                     if (isAutoLogin) {
-                        String mUserName = setting.getString(Constant.SP_USERNAME, "");
-                        String mPsw = setting.getString(Constant.SP_PASSWORD, "");
+
                         Log.e("zz","zzzz1");
                         if (TextUtils.isEmpty(mUserName) || TextUtils.isEmpty(mPsw)) {//
                             Intent intent = new Intent(SplashActivity.this, LoginActivity.class);
@@ -59,6 +63,10 @@ public class SplashActivity extends BaseActivity {
                             login(mUserName, mPsw);
                         }
 
+                    }else {
+                        Intent intent = new Intent(SplashActivity.this, LoginActivity.class);
+                        startActivity(intent);
+                        finish();
                     }
 
                 }

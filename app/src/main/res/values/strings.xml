@@ -14,4 +14,15 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
+
+    <string-array name="trafficLight">
+        <item>路口升序</item>
+        <item>路口降序</item>
+        <item>红灯升序</item>
+        <item>红灯降序</item>
+        <item>绿灯升序</item>
+        <item>绿灯降序</item>
+        <item>黄灯升序</item>
+        <item>黄灯降序</item>
+    </string-array>
 </resources>
