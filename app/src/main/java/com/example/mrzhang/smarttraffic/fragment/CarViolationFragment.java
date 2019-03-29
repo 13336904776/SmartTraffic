@@ -2,9 +2,13 @@ package com.example.mrzhang.smarttraffic.fragment;
 
 import android.app.Fragment;
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +18,12 @@ import android.widget.RadioGroup;
 
 import com.example.mrzhang.smarttraffic.R;
 import com.example.mrzhang.smarttraffic.activity.MyVedioActivity;
+import com.example.mrzhang.smarttraffic.adapter.CarViolaAdapter;
+import com.example.mrzhang.smarttraffic.bean.CarViolaBean;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CarViolationFragment extends Fragment implements View.OnClickListener {
     private View view;
@@ -45,8 +55,26 @@ public class CarViolationFragment extends Fragment implements View.OnClickListen
 //        inflater.inflate(R.layout.fragment_violation_query,null);
 
         initView(view);
-        mRb1.setChecked(true);
+        initData();
         return view;
+    }
+
+    private void initData() {
+        mRb1.setChecked(true);
+        GridLayoutManager gridLayoutManager  = new GridLayoutManager(getActivity(),4);
+//        gridLayoutManager.setOrientation();
+        mRcv.setLayoutManager(gridLayoutManager);
+        String sdPath = Environment.getExternalStorageDirectory().getPath();
+        List<CarViolaBean> mlist = new ArrayList<>();
+        mlist.add(new CarViolaBean(R.mipmap.menu_book,"超速",sdPath+"/Download/paomo.mp4"));
+        mlist.add(new CarViolaBean(R.mipmap.menu_slideshow,"违章停车",sdPath+"/Download/冰雨.mp4"));
+        mlist.add(new CarViolaBean(R.mipmap.menu_download,"非法鸣笛",sdPath+"/Download/大人的片想.mp4"));
+        mlist.add(new CarViolaBean(R.mipmap.menu_star,"闯红灯",sdPath+"/Download/进阶.mkv"));
+        mlist.add(new CarViolaBean(R.mipmap.menu_target,"苍鹭等",sdPath+"/Download/paomo.mp4"));
+        mlist.add(new CarViolaBean(R.mipmap.menu_book,"超速",sdPath+"/Download/paomo.mp4"));
+        mlist.add(new CarViolaBean(R.mipmap.menu_slideshow,"速度太慢",sdPath+"/Download/paomo.mp4"));
+        CarViolaAdapter carViolaAdapter = new CarViolaAdapter(getActivity(), mlist);
+        mRcv.setAdapter(carViolaAdapter);
     }
 
     private void initView(View view) {
@@ -89,6 +117,23 @@ public class CarViolationFragment extends Fragment implements View.OnClickListen
                 startActivity(intent);
                 break;
             case R.id.btn2://音频
+
+                MediaPlayer player = new MediaPlayer();
+                String path = Environment.getExternalStorageDirectory().getPath() + "/Download/Oops.MP3";
+                try {
+                    player.setDataSource(path);
+                    player.prepare();
+                    player.start();
+                } catch (IOException e) {
+                    Log.e("zz","zzzzz");
+                    e.printStackTrace();
+                }
+//                player.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+//                    @Override
+//                    public void onPrepared(MediaPlayer mediaPlayer) {
+//                        mediaPlayer.start();
+//                    }
+//                });
                 break;
         }
     }
