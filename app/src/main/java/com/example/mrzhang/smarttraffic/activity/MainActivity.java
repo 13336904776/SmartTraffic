@@ -18,6 +18,7 @@ import com.example.mrzhang.smarttraffic.adapter.LeftMenuAdapter;
 import com.example.mrzhang.smarttraffic.bean.MenuBean;
 import com.example.mrzhang.smarttraffic.fragment.AccountManageFragment;
 import com.example.mrzhang.smarttraffic.fragment.BusFragment;
+import com.example.mrzhang.smarttraffic.fragment.CarViolationFragment;
 import com.example.mrzhang.smarttraffic.fragment.TrafficLightFragment;
 import com.example.mrzhang.smarttraffic.utils.Constant;
 
@@ -64,7 +65,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         if (!userRole.equals("nor_user")) {
             menuBeans.add(new MenuBean(R.mipmap.menu_star, "红绿灯管理"));
         }
-        menuBeans.add(new MenuBean(R.mipmap.menu_star, "违章查询"));
+        menuBeans.add(new MenuBean(R.mipmap.menu_star, "车辆违章"));
         menuBeans.add(new MenuBean(R.mipmap.menu_star, "道路状况"));
         menuBeans.add(new MenuBean(R.mipmap.menu_star, "生活助手"));
         menuBeans.add(new MenuBean(R.mipmap.menu_star, "数据分析"));
@@ -94,8 +95,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
 
                 } else if ("红绿灯管理".equals(menuName)) {
                     fragmentManager.beginTransaction().replace(R.id.rl_home, new TrafficLightFragment()).commit();
-                } else if ("违章查询".equals(menuName)) {
-
+                } else if ("车辆违章".equals(menuName)) {
+                    fragmentManager.beginTransaction().replace(R.id.rl_home, new CarViolationFragment()).commit();
                 } else if ("道路状况".equals(menuName)) {
 
                 } else if ("生活助手".equals(menuName)) {

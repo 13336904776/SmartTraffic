@@ -36,7 +36,7 @@ public class SplashActivity extends BaseActivity {
         setting = getSharedPreferences("setting", 0);
         mUserName = setting.getString(Constant.SP_USERNAME, "");
         mPsw = setting.getString(Constant.SP_PASSWORD, "");
-        CountDownTimer countDownTimer = new CountDownTimer(5000, 1000) {
+        CountDownTimer countDownTimer = new CountDownTimer(3000, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
                 mTimeTv.setText(millisUntilFinished / 1000 + "S");
