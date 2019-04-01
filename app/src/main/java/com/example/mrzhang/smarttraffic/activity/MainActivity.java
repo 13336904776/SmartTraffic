@@ -1,9 +1,9 @@
 package com.example.mrzhang.smarttraffic.activity;
 
-import android.app.FragmentManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -19,6 +19,7 @@ import com.example.mrzhang.smarttraffic.bean.MenuBean;
 import com.example.mrzhang.smarttraffic.fragment.AccountManageFragment;
 import com.example.mrzhang.smarttraffic.fragment.BusFragment;
 import com.example.mrzhang.smarttraffic.fragment.CarViolationFragment;
+import com.example.mrzhang.smarttraffic.fragment.RealTimeShowFragment;
 import com.example.mrzhang.smarttraffic.fragment.TrafficLightFragment;
 import com.example.mrzhang.smarttraffic.utils.Constant;
 
@@ -56,7 +57,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
 
         mTitleIv.setBackgroundResource(R.mipmap.ic_launcher);
 
-        fragmentManager = getFragmentManager();
+        fragmentManager = getSupportFragmentManager();
+
         List<MenuBean> menuBeans = new ArrayList<>();
         menuBeans.add(new MenuBean(R.mipmap.menu_star, "账户管理"));
         menuBeans.add(new MenuBean(R.mipmap.menu_book, "公交查询"));
@@ -66,7 +68,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
             menuBeans.add(new MenuBean(R.mipmap.menu_star, "红绿灯管理"));
         }
         menuBeans.add(new MenuBean(R.mipmap.menu_star, "车辆违章"));
-        menuBeans.add(new MenuBean(R.mipmap.menu_star, "道路状况"));
+        menuBeans.add(new MenuBean(R.mipmap.menu_star, "实时显示"));
         menuBeans.add(new MenuBean(R.mipmap.menu_star, "生活助手"));
         menuBeans.add(new MenuBean(R.mipmap.menu_star, "数据分析"));
         menuBeans.add(new MenuBean(R.mipmap.menu_star, "个人中心"));
@@ -97,8 +99,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                     fragmentManager.beginTransaction().replace(R.id.rl_home, new TrafficLightFragment()).commit();
                 } else if ("车辆违章".equals(menuName)) {
                     fragmentManager.beginTransaction().replace(R.id.rl_home, new CarViolationFragment()).commit();
-                } else if ("道路状况".equals(menuName)) {
-
+                } else if ("实时显示".equals(menuName)) {
+                    fragmentManager.beginTransaction().replace(R.id.rl_home, new RealTimeShowFragment()).commit();
                 } else if ("生活助手".equals(menuName)) {
 
                 } else if ("数据分析".equals(menuName)) {
