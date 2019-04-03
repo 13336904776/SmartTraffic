@@ -18,6 +18,7 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.mrzhang.smarttraffic.R;
 import com.example.mrzhang.smarttraffic.bean.SenseBean;
+import com.example.mrzhang.smarttraffic.db.OrmHelper;
 import com.example.mrzhang.smarttraffic.utils.BaseUrl;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.XAxis;
@@ -26,9 +27,11 @@ import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.google.gson.Gson;
+import com.j256.ormlite.dao.Dao;
 
 import org.json.JSONObject;
 
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -77,6 +80,16 @@ public class Fragment1 extends Fragment implements View.OnClickListener {
                                 Gson gson = new Gson();
                                 SenseBean senseBean = gson.fromJson(jsonObject.toString(), SenseBean.class);
                                 if ("S".equals(senseBean.getRESULT())) {
+                                    OrmHelper ormHelper = OrmHelper.getInstanse(getActivity());
+                                    try {
+                                        Dao<SenseBean, ?> dao = ormHelper.getDao(SenseBean.class);
+                                        dao.create(senseBean);
+                                        List<SenseBean> senseBeans = dao.queryForAll();
+//                                        dao.update();
+                                    } catch (SQLException e) {
+
+
+                                    }
                                     int temperature = senseBean.getTemperature();
                                     LineData lineData = mChart.getLineData();
                                     LineDataSet dataSet = lineData.getDataSetByIndex(0);
