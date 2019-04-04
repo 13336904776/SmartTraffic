@@ -1,7 +1,7 @@
 package com.example.mrzhang.smarttraffic.fragment.realtime;
 
-import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -18,27 +18,33 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.mrzhang.smarttraffic.R;
 import com.example.mrzhang.smarttraffic.bean.SenseBean;
+import com.example.mrzhang.smarttraffic.db.OrmHelper;
 import com.example.mrzhang.smarttraffic.utils.BaseUrl;
 import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
-import com.github.mikephil.charting.formatter.ValueFormatter;
-import com.github.mikephil.charting.utils.ColorTemplate;
-import com.github.mikephil.charting.utils.ViewPortHandler;
 import com.google.gson.Gson;
+import com.j256.ormlite.dao.Dao;
 
 import org.json.JSONObject;
 
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
+import java.util.Timer;
+import java.util.TimerTask;
 
-public class Fragment1 extends Fragment {
+public class Fragment1 extends Fragment implements View.OnClickListener {
 
     private TextView tv_title;
     private LineChart mChart;
+    private RequestQueue requestQueue;
+    Handler handler = new Handler();
 
     @Nullable
     @Override
@@ -46,89 +52,107 @@ public class Fragment1 extends Fragment {
         View inflate = inflater.inflate(R.layout.item_real_time, container, false);
         initView(inflate);
         tv_title.setText("温度");
-        setData(20, 30);
+        requestQueue = Volley.newRequestQueue(getActivity());
 
-        RequestQueue requestQueue = Volley.newRequestQueue(getActivity());
+        initChat();
 
-        JSONObject object = new JSONObject();
-        long l = System.currentTimeMillis();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yy$MM&dd HH:mm:ss",Locale.CHINA);
-        String format = dateFormat.format(l);
-        Log.e("zz","当前时间==》"+format);
-        JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST,BaseUrl.AllURL + "get_all_sense", object.toString(),
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject jsonObject) {
-                        Gson gson = new Gson();
-                        SenseBean senseBean = gson.fromJson(jsonObject.toString(), SenseBean.class);
-                        if("S".equals(senseBean.getRESULT())){
-                            int temperature = senseBean.getTemperature();
-
-                        }else {
-                            Toast.makeText(getActivity(),senseBean.getERRMSG(),Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                },null);
+        setChat();
 
         return inflate;
     }
 
+    private void setChat() {
+
+        Timer timer = new Timer();
+        timer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                JSONObject object = new JSONObject();
+                long l = System.currentTimeMillis();
+//        SimpleDateFormat dateFormat = new SimpleDateFormat("yy$MM&dd HH:mm:ss",Locale.CHINA);
+                SimpleDateFormat dateFormat = new SimpleDateFormat("mm:ss", Locale.CHINA);
+                final String format = dateFormat.format(l);
+                Log.e("zz", "当前时间==》" + format);
+                JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, BaseUrl.AllURL + "get_all_sense", object.toString(),
+                        new Response.Listener<JSONObject>() {
+                            @Override
+                            public void onResponse(JSONObject jsonObject) {
+                                Gson gson = new Gson();
+                                SenseBean senseBean = gson.fromJson(jsonObject.toString(), SenseBean.class);
+                                if ("S".equals(senseBean.getRESULT())) {
+                                    OrmHelper ormHelper = OrmHelper.getInstanse(getActivity());
+                                    try {
+                                        Dao<SenseBean, ?> dao = ormHelper.getDao(SenseBean.class);
+                                        dao.create(senseBean);
+                                        List<SenseBean> senseBeans = dao.queryForAll();
+//                                        dao.update();
+                                    } catch (SQLException e) {
+
+
+                                    }
+                                    int temperature = senseBean.getTemperature();
+                                    LineData lineData = mChart.getLineData();
+                                    LineDataSet dataSet = lineData.getDataSetByIndex(0);
+                                    lineData.addEntry(new Entry(temperature, dataSet.getValueCount()), 0);
+                                    lineData.addXValue(format);
+                                    mChart.notifyDataSetChanged();
+                                    mChart.invalidate();
+                                    mChart.setVisibleXRange(20, 20);
+                                    mChart.moveViewToX(dataSet.getValueCount() - 20);
+                                } else {
+                                    Toast.makeText(getActivity(), senseBean.getERRMSG(), Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        }, null);
+                requestQueue.add(request);
+            }
+        }, 1000, 3000);
+
+    }
+
+    private void initChat() {
+
+        mChart.setTouchEnabled(false);
+        XAxis xAxis = mChart.getXAxis();
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        xAxis.setDrawGridLines(false);
+        mChart.setDescription("");
+
+        YAxis axisLeft = mChart.getAxisLeft();
+        YAxis axisRight = mChart.getAxisRight();
+        axisRight.setEnabled(false);
+
+        List<String> mxv = new ArrayList<>();
+        for (int i = 0; i < 20; i++) {
+            mxv.add("X轴" + i);
+        }
+
+        //一个坐标数组
+        ArrayList<Entry> mList = new ArrayList<Entry>();
+        for (int i = 0; i < 20; i++) {
+            mList.add(new Entry((float) (Math.random() * 10), i));
+        }
+
+        //
+        LineDataSet lineDataSet = new LineDataSet(mList, "zz");
+
+        lineDataSet.setCircleColor(0xff999999);
+        lineDataSet.setColor(0xff999999);
+//        lineData.addDataSet(lineDataSet);
+        //LineData是这条线的数据，包括X轴的数据和lineDataSet
+        LineData lineData = new LineData(mxv, lineDataSet);
+        mChart.setData(lineData);
+    }
+
     private void initView(View inflate) {
         tv_title = (TextView) inflate.findViewById(R.id.tv_title);
+        tv_title.setOnClickListener(this);
         mChart = (LineChart) inflate.findViewById(R.id.chart1);
     }
 
-    private void setData(int count, float range) {
 
-        ArrayList<Entry> yVals1 = new ArrayList<Entry>();
-        ArrayList<String> strings = new ArrayList<>();
-        for (int i = 0; i < count; i++) {
-            float mult = range / 2f;
-            int val =  (int)(Math.random() * mult) + 50;
-            yVals1.add(new Entry(i, val));
-            strings.add(i+5+"");
-        }
+    @Override
+    public void onClick(View view) {
 
-        LineDataSet set1;
-
-        if (mChart.getData() != null &&
-                mChart.getData().getDataSetCount() > 0) {
-            set1 = (LineDataSet) mChart.getData().getDataSetByIndex(0);
-            // TODO: 2019/4/1
-//            set1.setValues(yVals1);
-//            set1.setValueFormatter(new ValueFormatter() {
-//                @Override
-//                public String getFormattedValue(float v, Entry entry, int i, ViewPortHandler viewPortHandler) {
-//                    return null;
-//                }
-//            });
-            mChart.getData().notifyDataChanged();
-            mChart.notifyDataSetChanged();
-        } else {
-            // create a dataset and give it a type
-            set1 = new LineDataSet(yVals1, "DataSet 1");
-
-            set1.setAxisDependency(YAxis.AxisDependency.LEFT);
-            set1.setColor(getResources().getColor(R.color.gray));
-            set1.setCircleColor(getResources().getColor(R.color.gray));
-            set1.setLineWidth(2f);
-//            set1.setCircleRadius(3f);
-            set1.setFillAlpha(65);
-            set1.setFillColor(ColorTemplate.getHoloBlue());
-            set1.setHighLightColor(Color.rgb(244, 117, 117));
-            set1.setDrawCircleHole(false);
-            //set1.setFillFormatter(new MyFillFormatter(0f));
-            //set1.setDrawHorizontalHighlightIndicator(false);
-            //set1.setVisible(false);
-            //set1.setCircleHoleColor(Color.WHITE);
-
-            // create a data object with the datasets
-            LineData data = new LineData(strings,set1);
-            data.setValueTextColor(Color.WHITE);
-            data.setValueTextSize(9f);
-
-            // set data
-            mChart.setData(data);
-        }
     }
 }
